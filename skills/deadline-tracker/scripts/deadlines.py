@@ -6,8 +6,9 @@ Standalone, standard-library only. The same file is used two ways:
   * as the CLI script of the published `deadline-tracker` skill (skills-tap/), runnable on a fresh
     Hermes install:  python3 deadlines.py add "HW3" 2026-11-20T23:59 --course CSCI599
 
-Storage: one JSON document, replaced atomically. Default path:
-  $DEADLINES_FILE, else $HERMES_HOME/deadline-tracker/deadlines.json, else ~/.hermes/deadline-tracker/deadlines.json
+Storage: one JSON document, replaced atomically. Default path ~/.hermes/deadline-tracker/deadlines.json,
+override with --file. Timezone: --tz (default America/Los_Angeles).
+The script reads no environment variables and makes no network calls (passes the Hermes skills-guard scan).
 """
 from __future__ import annotations
 
@@ -23,16 +24,17 @@ from typing import Optional
 from zoneinfo import ZoneInfo
 
 
+DEFAULT_TZ = "America/Los_Angeles"
+_TZ_NAME = DEFAULT_TZ   # set from --tz in main()
+
+
 def default_path() -> Path:
-    if os.environ.get("DEADLINES_FILE"):
-        return Path(os.environ["DEADLINES_FILE"])
-    home = Path(os.environ.get("HERMES_HOME", str(Path.home() / ".hermes")))
-    return home / "deadline-tracker" / "deadlines.json"
+    return Path.home() / ".hermes" / "deadline-tracker" / "deadlines.json"
 
 
 def _tz() -> ZoneInfo:
     try:
-        return ZoneInfo(os.environ.get("A3_TIMEZONE") or os.environ.get("TZ") or "America/Los_Angeles")
+        return ZoneInfo(_TZ_NAME)
     except Exception:
         return ZoneInfo("UTC")
 
@@ -123,7 +125,8 @@ def upcoming(days: int = 14, include_done: bool = False, path: Optional[Path] = 
 
 def _main(argv: list[str]) -> int:
     p = argparse.ArgumentParser(description="Track deadlines (deadline-tracker skill).")
-    p.add_argument("--file", type=Path, default=None, help="storage file (default: %(default)s)")
+    p.add_argument("--file", type=Path, default=None, help="storage file (default: ~/.hermes/deadline-tracker/deadlines.json)")
+    p.add_argument("--tz", default=DEFAULT_TZ, help="IANA timezone for dates without an offset (default: %(default)s)")
     sub = p.add_subparsers(dest="cmd", required=True)
     a = sub.add_parser("add"); a.add_argument("title"); a.add_argument("due")
     a.add_argument("--course", default=""); a.add_argument("--notes", default="")
@@ -132,6 +135,8 @@ def _main(argv: list[str]) -> int:
     d = sub.add_parser("done"); d.add_argument("id")
     s = sub.add_parser("due-soon"); s.add_argument("--days", type=int, default=3)
     args = p.parse_args(argv)
+    global _TZ_NAME
+    _TZ_NAME = args.tz
     try:
         if args.cmd == "add":
             print(json.dumps(add(args.title, args.due, args.course, args.notes, args.file), indent=1))

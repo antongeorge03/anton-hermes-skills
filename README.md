@@ -7,17 +7,20 @@ custom skill published to a public GitHub repository used as a Hermes skill tap)
 
 | Skill | What it does |
 |---|---|
-| `deadline-tracker` | Track assignment/project deadlines locally; list what is due soon. Stdlib-only, no network. |
+| `deadline-tracker` | Track assignment/project deadlines locally; list what is due soon. Stdlib-only, no network, no environment variables. |
 
 ## Install on any Hermes
 
 ```bash
-hermes skills tap add <github-user>/anton-hermes-skills
+hermes skills tap add antongeorge03/anton-hermes-skills
 hermes skills search deadline
-hermes skills install <github-user>/anton-hermes-skills/deadline-tracker
+hermes skills install antongeorge03/anton-hermes-skills/skills/deadline-tracker
 ```
 
-Pinned version: see the tag `deadline-tracker-v1.0.0` / the commit hash in the A3 submission.
+Pinned version: tag `deadline-tracker-v1.0.1` (v1.0.0 = `e0366f7` was blocked by the Hermes skills-guard scan because the script read an
+environment variable; v1.0.1 reads none and scans **SAFE**).
+
+Repository: https://github.com/antongeorge03/anton-hermes-skills
 
 ## Try it
 

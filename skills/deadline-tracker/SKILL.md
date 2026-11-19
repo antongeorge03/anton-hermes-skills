@@ -1,7 +1,7 @@
 ---
 name: deadline-tracker
 description: Track assignment and project deadlines locally and list what is due soon. No accounts, no network, no credentials.
-version: 1.0.0
+version: 1.0.1
 author: Anton George
 license: MIT
 metadata:
@@ -12,7 +12,8 @@ metadata:
 # Deadline tracker
 
 Keeps a small local list of deadlines in `~/.hermes/deadline-tracker/deadlines.json`
-(override with the `DEADLINES_FILE` environment variable). Standard-library Python only.
+(override with `--file PATH`). Standard-library Python only; reads no environment variables and never
+contacts the network.
 
 Run the helper with the terminal tool. Always quote arguments.
 
@@ -26,7 +27,7 @@ Run the helper with the terminal tool. Always quote arguments.
 
 Workflow:
 1. When the user mentions a deadline ("HW4 is due Friday 11:59pm"), resolve the date in the
-   user's timezone (set `A3_TIMEZONE` or `TZ`, default America/Los_Angeles), then run `add`
+   user's timezone (pass `--tz <IANA zone>` before the subcommand; default America/Los_Angeles), then run `add`
    with an ISO date or date-time. Confirm the resolved date back to the user.
 2. For "what's due?", run `list` and present items soonest first; flag anything due in under
    3 days and anything `overdue`.
